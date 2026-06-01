@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket #{{ ticket.id }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-semibold" href="{{ url_for('auth.index') }}">SRMS</a>
+            <div class="ms-auto d-flex gap-2">
+                <a href="{{ url_for('tickets.index') }}" class="btn btn-light btn-sm">My Tickets</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h4 mb-1">{{ ticket.title }}</h1>
+                <p class="text-muted mb-0">Submitted on {{ ticket.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+            </div>
+            <a href="{{ url_for('tickets.index') }}" class="btn btn-outline-secondary btn-sm">Back</a>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white fw-semibold">Description</div>
+                    <div class="card-body">
+                        <p class="mb-0">{{ ticket.description }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-white fw-semibold">Ticket Info</div>
+                    <div class="card-body">
+                        <div class="mb-2"><span class="text-muted">Status:</span> <span class="badge text-bg-{{ ticket.status_badge_color() }}">{{ ticket.ticket_status }}</span></div>
+                        <div class="mb-2"><span class="text-muted">Priority:</span> <span class="badge text-bg-{{ ticket.priority_badge_color() }}">{{ ticket.priority }}</span></div>
+                        <div class="mb-2"><span class="text-muted">Category:</span> {{ ticket.category.name if ticket.category else '—' }}</div>
+                        <div class="mb-2"><span class="text-muted">Assigned To:</span> {{ ticket.assignee.full_name if ticket.assignee else 'Unassigned' }}</div>
+                        <div><span class="text-muted">Last Updated:</span> {{ ticket.updated_at.strftime('%b %d, %Y') }}</div>
+                    </div>
+                </div>
+
+                {% if ticket.is_open() %}
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('tickets.edit', ticket_id=ticket.id) }}" class="btn btn-primary">Edit Ticket</a>
+                    <form method="POST" action="{{ url_for('tickets.delete', ticket_id=ticket.id) }}" onsubmit="return confirm('Are you sure you want to delete this ticket?')">
+                        <button type="submit" class="btn btn-outline-danger w-100">Delete Ticket</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
