@@ -19,11 +19,24 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    def get_badge_color(self):
+        if self.is_admin():
+            return "primary"
+        elif self.is_technician():
+            return "warning"
+        elif self.is_user():
+            return "info"
+        else:
+            return "secondary"
+
     def is_admin(self):
         return self.role == 'admin'
 
     def is_technician(self):
         return self.role == 'technician'
+
+    def is_user(self):
+        return self.role == 'user'
 
     def is_staff(self):
         return self.role in ('technician', 'admin')
